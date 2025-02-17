@@ -43,7 +43,7 @@ const CalendarEvents = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/events");
+      const response = await axios.get("https://trevel-backend.vercel.app/api/events");
       const events = response.data.map((event: any) => ({
         id: event._id,
         title: event.title,
@@ -68,7 +68,7 @@ const CalendarEvents = () => {
 
     if (title && selectedDate) {
       try {
-        const response = await axios.post("http://localhost:5000/api/events", {
+        const response = await axios.post("https://trevel-backend.vercel.app/api/events", {
           title,
           start: selectedDate.dateStr,
           allDay: selectedDate.allDay,
@@ -104,7 +104,7 @@ const CalendarEvents = () => {
   const handleConfirmDelete = async () => {
     if (selectedEvent) {
       try {
-        await axios.delete(`http://localhost:5000/api/events/${selectedEvent.event.id}`);
+        await axios.delete(`https://trevel-backend.vercel.app/api/events/${selectedEvent.event.id}`);
         selectedEvent.event.remove();
         setCurrentEvents((prevEvents) =>
           prevEvents.filter((event) => event.id !== selectedEvent.event.id)

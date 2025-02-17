@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://trevel-backend.vercel.app/api";
 
 // Function to upload popup image
 export const uploadPopupImage = async (file) => {

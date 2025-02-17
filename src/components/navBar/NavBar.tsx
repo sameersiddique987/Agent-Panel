@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Box, Slide, useScrollTrigger, useTheme } from "@mui/material";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
@@ -19,7 +19,6 @@ import Tooltip from "@mui/material/Tooltip";
 import { AppBar } from "../../theme/ThemeComponents";
 import DropMenuIcon from "./DropMenuIcon";
 import SearchInput from "./SearchInput";
-import { io } from 'socket.io-client';
 
 type NavBarProps = {
   open: boolean;
@@ -60,27 +59,14 @@ const messagesMenu = [
       </Badge>
     ),
   },
-  // Add more messages as needed
 ];
 
 const NavBar = ({ open, handleDrawer }: NavBarProps) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [notifications, setNotifications] = useState<{ message: string }[]>([]);
+  const [notifications, setNotifications] = useState<{ message: string }[]>([]); // Static notifications, you can replace with dynamic data if needed
   const theme = useTheme();
   const colorMode = useThemeMode();
   const trigger = useScrollTrigger();
-
-  useEffect(() => {
-    const socket = io('http://localhost:5000');
-
-    socket.on('notification', (notification) => {
-      setNotifications((prevNotifications) => [...prevNotifications, notification]);
-    });
-
-    return () => {
-      socket.off('notification');
-    };
-  }, []);
 
   const openSearchHandler = () => {
     setIsSearchOpen(true);
@@ -120,12 +106,7 @@ const NavBar = ({ open, handleDrawer }: NavBarProps) => {
             <MenuIcon />
           </IconButton>
           <Box width="100%" sx={{ position: "relative", zIndex: 1 }}>
-            <Slide
-              direction="down"
-              in={isSearchOpen}
-              mountOnEnter
-              unmountOnExit
-            >
+            <Slide direction="down" in={isSearchOpen} mountOnEnter unmountOnExit>
               <SearchInput closeSearchHandler={closeSearchHandler} />
             </Slide>
             <Box
