@@ -4,7 +4,6 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import SearchIcon from "@mui/icons-material/Search";
-import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import MenuIcon from "@mui/icons-material/Menu";
 import { InputAdornment, OutlinedInput } from "@mui/material";
 import useThemeMode from "../../hooks/useThemeMode";
@@ -63,7 +62,6 @@ const messagesMenu = [
 
 const NavBar = ({ open, handleDrawer }: NavBarProps) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [notifications, setNotifications] = useState<{ message: string }[]>([]); // Static notifications, you can replace with dynamic data if needed
   const theme = useTheme();
   const colorMode = useThemeMode();
   const trigger = useScrollTrigger();
@@ -74,15 +72,6 @@ const NavBar = ({ open, handleDrawer }: NavBarProps) => {
   const closeSearchHandler = () => {
     setIsSearchOpen(false);
   };
-
-  const notificationsMenu = notifications.map((notification, index) => ({
-    title: notification.message,
-    icon: (
-      <Badge variant="dot" color="error" key={index}>
-        <NotificationsOutlinedIcon />
-      </Badge>
-    ),
-  }));
 
   return (
     <Slide appear={false} direction="down" in={!trigger}>
@@ -173,17 +162,6 @@ const NavBar = ({ open, handleDrawer }: NavBarProps) => {
                   mainIcon={
                     <Badge badgeContent={3} color="error">
                       <EmailOutlinedIcon sx={{ fontSize: "22px" }} />
-                    </Badge>
-                  }
-                  divider={true}
-                />
-                <DropMenuIcon
-                  menuItems={notificationsMenu}
-                  toolTip="Notifications"
-                  id="notifications-menu"
-                  mainIcon={
-                    <Badge badgeContent={notifications.length} color="error">
-                      <NotificationsOutlinedIcon sx={{ fontSize: "24px" }} />
                     </Badge>
                   }
                   divider={true}
