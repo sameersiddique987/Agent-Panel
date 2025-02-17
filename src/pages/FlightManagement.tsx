@@ -1,97 +1,69 @@
-import React, { useState, useEffect } from "react";
-import { createFlight, fetchFlights } from "../api"; 
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { createFlight, fetchFlights, Flight } from '../api';
 
-// 🛫 Define Flight Type
-interface Flight {
-  _id: string;
-  airline: string;
-  flight_number: string;
-  departure_airport: string;
-  arrival_airport: string;
-  departure_time: string;
-  arrival_time: string;
-  status: string;
-  duration: string;
-  price: number;
-  logoUrl?: string;
-}
-
-// 📝 Define Form Data Type
-interface FlightFormData {
-  airline: string;
-  flight_number: string;
-  departure_airport: string;
-  arrival_airport: string;
-  departure_time: string;
-  arrival_time: string;
-  status: string;
-  duration: string;
-  price: number;
-  logo: File | null;
-}
-
-const FlightManagement: React.FC = () => {
-  const [formData, setFormData] = useState<FlightFormData>({
-    airline: "",
-    flight_number: "",
-    departure_airport: "",
-    arrival_airport: "",
-    departure_time: "",
-    arrival_time: "",
-    status: "",
-    duration: "",
+const FlightManagement = () => {
+  const [formData, setFormData] = useState<Flight>({
+    id: '',
+    airline: '',
+    departure: '',
+    arrival: '',
+    duration: '',
     price: 0,
+    departure_time: '',
+    arrival_time: '',
+    status: '',
     logo: null,
+    flight_number: '',
+    departure_airport: '',
+    arrival_airport: '',
   });
-
   const [flights, setFlights] = useState<Flight[]>([]);
-  const [responseMessage, setResponseMessage] = useState<string>("");
+  const [responseMessage, setResponseMessage] = useState<string>('');
 
-  // 🖊 Handle Input Change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 📤 Handle File Upload
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFormData((prev) => ({ ...prev, logo: e.target.files[0] }));
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file: File = e.target.files[0];
+      setFormData((prev) => ({ ...prev, logo: file }));
     }
   };
 
-  // ✈ Submit Form
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await createFlight(formData); // ✅ Ensure it's FlightFormData
-      setResponseMessage("Flight added successfully!");
+      await createFlight({ ...formData, price: Number(formData.price) });
+      setResponseMessage('Flight added successfully!');
       setFormData({
-        airline: "",
-        flight_number: "",
-        departure_airport: "",
-        arrival_airport: "",
-        departure_time: "",
-        arrival_time: "",
-        status: "",
-        duration: "",
+        id: '',
+        airline: '',
+        departure: '',
+        arrival: '',
+        duration: '',
         price: 0,
+        departure_time: '',
+        arrival_time: '',
+        status: '',
         logo: null,
+        flight_number: '',
+        departure_airport: '',
+        arrival_airport: '',
       });
-      loadFlights(); // Load flights after adding
+      loadFlights();
     } catch (error) {
-      console.error("Error:", error);
-      setResponseMessage("An error occurred, please try again.");
+      setResponseMessage('An error occurred, please try again.');
     }
   };
 
-  // 🔄 Fetch Flights
   const loadFlights = async () => {
     try {
-      const data: Flight[] = await fetchFlights(); // ✅ Ensure it's Flight[]
+      const data = await fetchFlights();
       setFlights(data);
     } catch (error) {
-      console.error("Error fetching flights:", error);
+      console.error('Error fetching flights:', error);
     }
   };
 
@@ -103,20 +75,86 @@ const FlightManagement: React.FC = () => {
     <div>
       <h1>Flight Management</h1>
       <form onSubmit={handleSubmit}>
-        <input type="text" name="airline" placeholder="Airline Name" value={formData.airline} onChange={handleInputChange} required />
-        <input type="text" name="flight_number" placeholder="Flight Number" value={formData.flight_number} onChange={handleInputChange} required />
-        <input type="text" name="departure_airport" placeholder="Departure Airport" value={formData.departure_airport} onChange={handleInputChange} required />
-        <input type="text" name="arrival_airport" placeholder="Arrival Airport" value={formData.arrival_airport} onChange={handleInputChange} required />
-        <input type="datetime-local" name="departure_time" value={formData.departure_time} onChange={handleInputChange} required />
-        <input type="datetime-local" name="arrival_time" value={formData.arrival_time} onChange={handleInputChange} required />
-        <input type="text" name="status" placeholder="Status" value={formData.status} onChange={handleInputChange} required />
-        <input type="text" name="duration" placeholder="Duration" value={formData.duration} onChange={handleInputChange} required />
-        <input type="number" name="price" placeholder="Price" value={formData.price} onChange={handleInputChange} required />
-        <input type="file" name="logo" onChange={handleFileChange} />
+        <input
+          type="text"
+          name="airline"
+          placeholder="Airline Name"
+          value={formData.airline}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="text"
+          name="flight_number"
+          placeholder="Flight Number"
+          value={formData.flight_number}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="text"
+          name="departure_airport"
+          placeholder="Departure Airport"
+          value={formData.departure_airport}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="text"
+          name="arrival_airport"
+          placeholder="Arrival Airport"
+          value={formData.arrival_airport}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="datetime-local"
+          name="departure_time"
+          placeholder="Departure Time"
+          value={formData.departure_time}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="datetime-local"
+          name="arrival_time"
+          placeholder="Arrival Time"
+          value={formData.arrival_time}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="text"
+          name="status"
+          placeholder="Status"
+          value={formData.status}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="text"
+          name="duration"
+          placeholder="Duration"
+          value={formData.duration}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="number"
+          name="price"
+          placeholder="Price"
+          value={formData.price}
+          onChange={handleInputChange}
+          required
+        />
+        <input
+          type="file"
+          name="logo"
+          onChange={handleFileChange}
+        />
         <button type="submit">Add Flight</button>
       </form>
       {responseMessage && <p>{responseMessage}</p>}
-
       <h2>All Flights</h2>
       <table>
         <thead>
@@ -134,8 +172,8 @@ const FlightManagement: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {flights.map((flight) => (
-            <tr key={flight._id}>
+          {flights.map(flight => (
+            <tr key={flight.id}>
               <td>{flight.flight_number}</td>
               <td>{flight.airline}</td>
               <td>{flight.departure_airport}</td>
@@ -144,8 +182,10 @@ const FlightManagement: React.FC = () => {
               <td>{new Date(flight.arrival_time).toLocaleString()}</td>
               <td>{flight.status}</td>
               <td>{flight.duration}</td>
-              <td>${flight.price.toFixed(2)}</td>
-              <td>{flight.logoUrl && <img src={`http://localhost:5000${flight.logoUrl}`} alt="Airline Logo" width="50" />}</td>
+              <td>{typeof flight.price === 'number' ? `$${flight.price.toFixed(2)}` : 'N/A'}</td>
+              <td>
+                {flight.logo && <img src={URL.createObjectURL(flight.logo)} alt="Airline Logo" width="50" />}
+              </td>
             </tr>
           ))}
         </tbody>

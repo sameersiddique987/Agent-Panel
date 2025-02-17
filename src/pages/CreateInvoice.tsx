@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Box, Button, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import { Box, Button, TextField, Typography, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import axios from "axios";
 
-interface Invoice {
-  _id: string;
+interface FormData {
   name: string;
   email: string;
   phone: string;
@@ -22,32 +21,47 @@ interface Invoice {
   price: number;
 }
 
+interface Invoice {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  departure: string;
+  destination: string;
+  date: string;
+  price: number;
+}
+
 const CreateInvoice: React.FC = () => {
-  const { handleSubmit, control } = useForm<Invoice>();
-  const [invoices, setInvoices] = useState<Invoice[]>([]); // Fixed Type
+  const { handleSubmit, control } = useForm<FormData>();
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
 
   useEffect(() => {
     fetchInvoices();
   }, []);
 
-  const fetchInvoices = async (): Promise<void> => {
+  const fetchInvoices = async () => {
     try {
-      const response = await axios.get<Invoice[]>('http://localhost:5000/api/invoices/all');
+      const response = await axios.get('http://localhost:5000/api/invoices/all');
       setInvoices(response.data);
     } catch (error) {
       console.error('Error fetching invoices:', error);
     }
   };
 
-  const generatePDF = async (formData: Invoice): Promise<void> => {
+  const generatePDF = async (formData: FormData): Promise<void> => {
     try {
       const doc = new jsPDF();
+
+      // Add a heading
       doc.setFontSize(15);
       doc.text("THE GRAND TRAVEL", 105, 15, { align: "center" });
 
+      // Add a horizontal line
       doc.setLineWidth(0.5);
       doc.line(20, 20, 190, 20);
 
+      // Add the table with form data
       autoTable(doc, {
         startY: 25,
         head: [["Field", "Details"]],
@@ -66,8 +80,10 @@ const CreateInvoice: React.FC = () => {
         styles: { fontSize: 12, cellPadding: 2 },
       });
 
+      // Ensure `finalY` exists before using it
       const finalY = (doc as any).lastAutoTable.finalY || 60;
 
+      // Add another table for flight details
       autoTable(doc, {
         startY: finalY + 5,
         head: [
@@ -83,29 +99,33 @@ const CreateInvoice: React.FC = () => {
 
       const lastY = (doc as any).lastAutoTable.finalY || finalY + 15;
 
+      // Add a note
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
       const noteText = doc.splitTextToSize(
-        "Your Financial Protection: When you buy an ATOL protected flight or flight inclusive holiday from us...",
+        "Your Financial Protection: When you buy an ATOL protected flight or flight inclusive holiday from us you will receive an ATOL Certificate. This lists what is financially protected, where you can get information on what this means for you and who to contact if things go wrong.",
         170
       );
       doc.text(noteText, 105, lastY + 5, { align: "center" });
 
+      // Add a footer
       doc.setLineWidth(0.5);
       doc.line(20, lastY + 15, 190, lastY + 15);
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
       const footerText = doc.splitTextToSize(
-        "The Grand Travel | Address: 1352 Leeds Road, Bradford, BD3 8ND...",
+        "The Grand Travel | Address: 1352 Leeds Road, Bradford, BD3 8ND, Tel: 01274 271818 | 01274665809, Emails: grandtravel786@gmail.com | Grand world travel | Address: 64 Leeds Old Road, Bradford, BD3 8HX | Tel: 01274661777, 01274015013",
         170
       );
       doc.text(footerText, 105, lastY + 20, { align: "center" });
 
+      // Save PDF
       const pdfBlob = doc.output('blob');
       const formDataToUpload = new FormData();
       formDataToUpload.append('invoice', pdfBlob, 'invoice.pdf');
 
-      const response = await axios.post<{ invoiceUrl: string }>('http://localhost:5000/upload-invoice', formDataToUpload, {
+      // Upload PDF to server
+      const response = await axios.post('http://localhost:5000/api/upload-invoice', formDataToUpload, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -114,13 +134,14 @@ const CreateInvoice: React.FC = () => {
       console.log('Invoice uploaded:', response.data.invoiceUrl);
       doc.save("invoice.pdf");
 
+      // Fetch updated invoices list
       fetchInvoices();
     } catch (error) {
       console.error("Error generating PDF:", error);
     }
   };
 
-  const onSubmit = (formData: Invoice) => {
+  const onSubmit = (formData: FormData) => {
     generatePDF(formData);
   };
 
@@ -134,43 +155,109 @@ const CreateInvoice: React.FC = () => {
           name="name"
           control={control}
           defaultValue=""
-          render={({ field }) => <TextField {...field} label="Name" fullWidth margin="normal" required />}
+          render={({ field }) => (
+            <TextField {...field} label="Name" fullWidth margin="normal" required />
+          )}
         />
         <Controller
           name="email"
           control={control}
           defaultValue=""
-          render={({ field }) => <TextField {...field} label="Email" type="email" fullWidth margin="normal" required />}
+          render={({ field }) => (
+            <TextField {...field} label="Email" type="email" fullWidth margin="normal" required />
+          )}
         />
         <Controller
           name="phone"
           control={control}
           defaultValue=""
-          render={({ field }) => <TextField {...field} label="Phone" type="tel" fullWidth margin="normal" required />}
+          render={({ field }) => (
+            <TextField {...field} label="Phone" type="tel" fullWidth margin="normal" required />
+          )}
+        />
+        <Controller
+          name="airline"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField {...field} label="Airline" fullWidth margin="normal" required />
+          )}
+        />
+        <Controller
+          name="flightNumber"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField {...field} label="Flight Number" fullWidth margin="normal" required />
+          )}
+        />
+        <Controller
+          name="flightClass"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField {...field} label="Class" select fullWidth margin="normal" required>
+              <MenuItem value="Economy">Economy</MenuItem>
+              <MenuItem value="Business">Business</MenuItem>
+              <MenuItem value="First Class">First Class</MenuItem>
+            </TextField>
+          )}
         />
         <Controller
           name="departure"
           control={control}
           defaultValue=""
-          render={({ field }) => <TextField {...field} label="From" fullWidth margin="normal" required />}
+          render={({ field }) => (
+            <TextField {...field} label="From" fullWidth margin="normal" required />
+          )}
         />
         <Controller
           name="destination"
           control={control}
           defaultValue=""
-          render={({ field }) => <TextField {...field} label="To" fullWidth margin="normal" required />}
+          render={({ field }) => (
+            <TextField {...field} label="To" fullWidth margin="normal" required />
+          )}
+        />
+        <Controller
+          name="departureTime"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField {...field} label="Departure Time" type="time" fullWidth margin="normal" InputLabelProps={{ shrink: true }} required />
+          )}
+        />
+        <Controller
+          name="arrivalTime"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField {...field} label="Arrival Time" type="time" fullWidth margin="normal" InputLabelProps={{ shrink: true }} required />
+          )}
         />
         <Controller
           name="date"
           control={control}
           defaultValue=""
-          render={({ field }) => <TextField {...field} label="Date" type="date" fullWidth margin="normal" required />}
+          render={({ field }) => (
+            <TextField {...field} label="Date" type="date" fullWidth margin="normal" InputLabelProps={{ shrink: true }} required />
+          )}
+        />
+        <Controller
+          name="seatNumber"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField {...field} label="Seat Number" fullWidth margin="normal" required />
+          )}
         />
         <Controller
           name="price"
           control={control}
           defaultValue={0}
-          render={({ field }) => <TextField {...field} label="Price" type="number" fullWidth margin="normal" required />}
+          render={({ field }) => (
+            <TextField {...field} label="Price" type="number" fullWidth margin="normal" required />
+          )}
         />
         <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
           Create Invoice
@@ -194,7 +281,7 @@ const CreateInvoice: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {invoices.map((invoice: Invoice) => (
+            {invoices.map((invoice) => (
               <TableRow key={invoice._id}>
                 <TableCell>{invoice.name}</TableCell>
                 <TableCell>{invoice.email}</TableCell>
