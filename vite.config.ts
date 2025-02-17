@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'dist', // Ensure the output directory is set to 'dist'
-    chunkSizeWarningLimit: 1000, // Adjust the limit as needed
+    chunkSizeWarningLimit: 2000, // Adjust the limit as needed
     rollupOptions: {
       output: {
         manualChunks(id) {
