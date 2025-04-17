@@ -2,6 +2,7 @@ import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom"; 
 
 interface LoginForm {
   username: string;
@@ -27,7 +28,7 @@ const Login: React.FC = () => {
           control={control}
           defaultValue=""
           render={({ field }) => (
-            <TextField {...field} label="Username" fullWidth margin="normal" required />
+            <TextField {...field} label="Email" type="email" fullWidth margin="normal" required />
           )}
         />
         <Controller
@@ -42,13 +43,17 @@ const Login: React.FC = () => {
           Login
         </Button>
       </form>
+
+      <Typography variant="body2" sx={{ mt: 2 }}>
+        Don't have an account?{" "}
+        <Link to="/SignUp" style={{ color: "#1976d2", textDecoration: "none" }}>
+          Signup here
+        </Link>
+      </Typography>
     </Box>
   );
 };
 
 export default Login;
-
-
-
 
 

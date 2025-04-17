@@ -8,12 +8,14 @@ import CQM from "./pages/CQM";
 import FlightManagement from "./pages/FlightManagement";
 import BookingManagement from "./pages/BookingManagement";
 
+
 // Lazy-loaded pages
 const ErrorPage = lazy(() => import("./pages/Error"));
 const HomePage = lazy(() => import("./pages/Home"));
 const InvoicesPage = lazy(() => import("./pages/Invoices"));
 const CreateInvoicePage = lazy(() => import("./pages/CreateInvoice"));
 const LoginPage = lazy(() => import("./pages/login"));
+const SignUp = lazy(() => import("./pages/SignUp"));
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
 
             {/* Login Route */}
             <Route path="/login" element={<LoginPage />} />
+
+            <Route path="/signup" element={<SignUp />} />
 
             {/* Error Page */}
             <Route path="*" element={<ErrorPage />} />
